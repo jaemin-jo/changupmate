@@ -71,12 +71,12 @@ button {
   width: 30px;
   height: 30px;
   border-radius: 8px;
-  background: var(--blue);
-  color: #fff;
+  /* D 로고(CHANGUP/MATE)의 소형 'CM' 아이콘을 배경으로 — 마크업 변경 없이 세 곳 반영 */
+  background: url("/favicon.png") center / cover no-repeat;
+  color: transparent;
+  font-size: 0;
   display: grid;
   place-items: center;
-  font-weight: 800;
-  font-size: 16px;
   flex: none;
 }
 
