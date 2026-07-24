@@ -1338,6 +1338,32 @@ select.filter {
   color: #fff;
 }
 
+/* 1열/2열 레이아웃 토글 */
+.layout-toggle {
+  margin-left: auto;
+  display: inline-flex;
+  gap: 4px;
+}
+
+.sort-chip.icon {
+  padding: 5px 9px;
+  display: inline-flex;
+  align-items: center;
+}
+
+/* 2열 옵션 (좁은 화면에선 자동으로 1열 유지) */
+@media (min-width: 1000px) {
+  .result-list.cols-2 {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 14px;
+  }
+
+  .result-list.cols-2 .unlock-card {
+    grid-column: 1 / -1;
+  }
+}
+
 /* ── 저장 공고 리스트 (탑바) ─────────────────────────────── */
 .bm-wrap {
   position: relative;
@@ -1613,17 +1639,6 @@ select.filter {
     padding: 30px;
   }
 
-  /* 결과 카드를 2열 그리드로 — 넓은 공간 활용 */
-  .result-list {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 14px;
-  }
-
-  .unlock-card {
-    grid-column: 1 / -1;
-  }
-
   .idea-input,
   .input-mirror {
     min-height: 190px;
@@ -1655,12 +1670,13 @@ select.filter {
     grid-template-columns: 470px 1fr;
   }
 
-  .result-list {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-  }
-
   .detail-panel {
     width: min(940px, 52vw);
+  }
+
+  /* 초광폭에서 2열 옵션은 3열로 */
+  .result-list.cols-2 {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 }
 

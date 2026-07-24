@@ -199,6 +199,15 @@ export default function App() {
   type SortMode = "deadline" | "relevance" | "newest" | "prize";
   const [sortMode, setSortMode] = useState<SortMode>("deadline");
 
+  // ── 결과 레이아웃: 1열 기본, 2열 옵션 ──
+  const [cols, setCols] = useState<1 | 2>(() =>
+    localStorage.getItem("matcher.cols") === "2" ? 2 : 1,
+  );
+
+  useEffect(() => {
+    localStorage.setItem("matcher.cols", String(cols));
+  }, [cols]);
+
   const sortedResults = useMemo(() => {
     const arr = [...results];
     if (sortMode === "deadline") {
@@ -793,6 +802,31 @@ export default function App() {
                     {label}
                   </button>
                 ))}
+                <span className="layout-toggle">
+                  <button
+                    className={`sort-chip icon${cols === 1 ? " active" : ""}`}
+                    title="1열 보기"
+                    onClick={() => setCols(1)}
+                  >
+                    <Ic size={13}>
+                      <path d="M4 6h16" />
+                      <path d="M4 12h16" />
+                      <path d="M4 18h16" />
+                    </Ic>
+                  </button>
+                  <button
+                    className={`sort-chip icon${cols === 2 ? " active" : ""}`}
+                    title="2열 보기"
+                    onClick={() => setCols(2)}
+                  >
+                    <Ic size={13}>
+                      <rect x="3" y="3" width="7" height="7" rx="1.5" />
+                      <rect x="14" y="3" width="7" height="7" rx="1.5" />
+                      <rect x="3" y="14" width="7" height="7" rx="1.5" />
+                      <rect x="14" y="14" width="7" height="7" rx="1.5" />
+                    </Ic>
+                  </button>
+                </span>
               </div>
             )}
 
@@ -806,7 +840,7 @@ export default function App() {
                   : "입력하는 즉시 맞춤 지원사업이 여기에 실시간으로 나타나요."}
               </div>
             ) : (
-              <div className="result-list">
+              <div className={`result-list${cols === 2 ? " cols-2" : ""}`}>
                 {sortedResults.map((r, i) => {
                   const sn = r.notice.pbanc_sn;
                   const d = daysLeft(r.notice.pbanc_rcpt_end_dt);
@@ -920,7 +954,7 @@ export default function App() {
                   </span>
                   <span className="count">{globalMatches.length}</span>
                 </div>
-                <div className="result-list">
+                <div className={`result-list${cols === 2 ? " cols-2" : ""}`}>
                   {globalMatches.map(({ g, hit }, i) => (
                     <a
                       key={g.id}
