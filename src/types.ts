@@ -13,6 +13,8 @@ export interface Announcement {
   pbanc_rcpt_end_dt: string | null;
   detl_pg_url: string | null;
   industries: string[];
+  /** 공고 출처 — 기본 K-Startup(undefined), "bizinfo"=기업마당 */
+  source?: string;
 }
 
 /** /api/announcement/{sn} 상세 — slim + 본문/신청방법/링크/담당자 */

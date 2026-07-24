@@ -96,6 +96,46 @@ function ideaLabel(text: string): string {
   return "링크 아이템";
 }
 
+/** 입력란에 붙여넣은 링크의 미리보기 썸네일 */
+function InputLinkPreview({ url }: { url: string }) {
+  const [state, setState] = useState<"loading" | "ok" | "fail">("loading");
+  let domain = url;
+  try {
+    domain = new URL(url).hostname;
+  } catch {
+    /* 그대로 표시 */
+  }
+  const icon = faviconUrl(url, 32);
+  return (
+    <a className="link-preview" href={url} target="_blank" rel="noreferrer">
+      {state !== "fail" ? (
+        <span className="link-thumb-wrap">
+          {state === "loading" && <span className="link-thumb-skeleton" />}
+          <img
+            className="link-thumb"
+            src={shotUrl(url)}
+            alt=""
+            style={state === "loading" ? { display: "none" } : undefined}
+            onLoad={() => setState("ok")}
+            onError={() => setState("fail")}
+          />
+        </span>
+      ) : (
+        icon && <img className="link-thumb-icon" src={icon} alt="" />
+      )}
+      <span className="link-info">
+        <span className="link-domain">
+          {icon && state !== "fail" && <img className="link-favicon" src={icon} alt="" />}
+          {domain}
+        </span>
+        <span className="link-hint">
+          {state === "loading" ? "사이트 화면을 불러오는 중…" : "AI가 이 페이지를 읽고 분석해요 · 클릭하면 새 탭 ↗"}
+        </span>
+      </span>
+    </a>
+  );
+}
+
 function loadProfile(): Profile | null {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
@@ -156,6 +196,9 @@ export default function App() {
   }, [announcements, region, stage]);
 
   const liveKeywords = useMemo(() => extractKeywords(text), [text]);
+
+  // 입력에 링크가 있으면 미리보기 썸네일 표시 (타이핑 중 잘린 URL 방지를 위해 디바운스 기준)
+  const inputUrl = useMemo(() => debounced.match(/https?:\/\/[^\s]+/)?.[0] ?? null, [debounced]);
 
   // ── Gemini 분석: 링크까지 읽고 정확한 키워드/멘트를 뽑는다 (실패 시 로컬 폴백) ──
   const [llm, setLlm] = useState<{ forText: string; analysis: Analysis } | null>(null);
@@ -675,6 +718,7 @@ export default function App() {
                   autoFocus
                 />
               </div>
+              {inputUrl && <InputLinkPreview key={inputUrl} url={inputUrl} />}
               <div className="card-row">
                 <span className="ic">{IconTag}</span> <span className="lbl">키워드 추출</span>
                 <span className="right">
@@ -913,6 +957,7 @@ export default function App() {
                           </button>
                         </div>
                         <div className="result-meta">
+                          {r.notice.source === "bizinfo" && <span className="src-chip">기업마당</span>}
                           {[r.notice.pbanc_ntrp_nm, r.notice.supt_biz_clsfc, r.notice.supt_regin]
                             .filter(Boolean)
                             .join(" · ")}

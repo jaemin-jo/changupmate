@@ -22,12 +22,21 @@ export async function fetchAnnouncements(): Promise<Announcement[]> {
   return refreshAnnouncements();
 }
 
-/** 캐시 무시하고 서버에서 최신 공고를 다시 받아온다 (실시간 동기화용) */
+/** 캐시 무시하고 서버에서 최신 공고를 다시 받아온다 (실시간 동기화용).
+ *  K-Startup(창업진흥원) + 기업마당(bizinfo) 두 소스를 병합. */
 export async function refreshAnnouncements(): Promise<Announcement[]> {
-  const res = await fetch(`${API_BASE}/api/announcement/open`);
-  if (!res.ok) throw new Error(`공고 API 오류: ${res.status}`);
-  const data = (await res.json()) as { items: Announcement[] };
-  cache = data.items.map((n) => ({
+  const [kisedRes, bizRes] = await Promise.all([
+    fetch(`${API_BASE}/api/announcement/open`),
+    fetch(`${API_BASE}/api/bizinfo/open`).catch(() => null),
+  ]);
+  if (!kisedRes.ok) throw new Error(`공고 API 오류: ${kisedRes.status}`);
+  const kised = (await kisedRes.json()) as { items: Announcement[] };
+  let biz: Announcement[] = [];
+  if (bizRes?.ok) {
+    const data = (await bizRes.json().catch(() => null)) as { items?: Announcement[] } | null;
+    biz = data?.items ?? [];
+  }
+  cache = [...kised.items, ...biz].map((n) => ({
     ...n,
     biz_pbanc_nm: decodeEntities(n.biz_pbanc_nm) ?? n.biz_pbanc_nm,
     pbanc_ntrp_nm: decodeEntities(n.pbanc_ntrp_nm),
@@ -60,6 +69,7 @@ const detailCache = new Map<number, Promise<AnnouncementDetail | null>>();
 
 /** 공고 상세 — 프로미스 캐시로 같은 공고 중복 요청 방지 */
 export function fetchAnnouncementDetail(sn: number): Promise<AnnouncementDetail | null> {
+  if (sn < 0) return Promise.resolve(null); // 기업마당 공고는 상세 API 없음 (slim 필드로 표시)
   const hit = detailCache.get(sn);
   if (hit) return hit;
   const p = fetch(`${API_BASE}/api/announcement/${sn}`)

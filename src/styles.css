@@ -666,6 +666,90 @@ button {
   text-underline-offset: 2px;
 }
 
+/* 입력 링크 미리보기 썸네일 */
+.link-preview {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 16px;
+  border-top: 1px solid var(--line-soft);
+  text-decoration: none;
+}
+
+.link-preview:hover {
+  background: var(--panel);
+}
+
+.link-thumb-wrap {
+  flex: none;
+  width: 150px;
+  height: 88px;
+  border-radius: 9px;
+  overflow: hidden;
+  border: 1px solid var(--line);
+  background: var(--panel);
+  display: block;
+  position: relative;
+}
+
+.link-thumb {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: top;
+  display: block;
+}
+
+.link-thumb-skeleton {
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(100deg, transparent 30%, rgba(255, 255, 255, 0.75) 50%, transparent 70%) var(--panel);
+  background-size: 200% 100%;
+  animation: shimmer 1.4s linear infinite;
+}
+
+.link-thumb-icon {
+  flex: none;
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  border: 1px solid var(--line);
+  background: #fff;
+  padding: 5px;
+}
+
+.link-info {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.link-domain {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: 650;
+  font-size: 13px;
+  color: var(--ink);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.link-favicon {
+  width: 15px;
+  height: 15px;
+  border-radius: 4px;
+  flex: none;
+}
+
+.link-hint {
+  font-size: 11.5px;
+  color: var(--faint);
+}
+
 /* 빈 입력 가이드 — 반투명 + 파란 점선 블링크 */
 .guide-box {
   position: absolute;
@@ -841,6 +925,19 @@ select.filter {
   color: var(--faint);
   font-size: 12.5px;
   margin-top: 3px;
+}
+
+.src-chip {
+  display: inline-block;
+  background: #fff7ed;
+  color: #c2410c;
+  border: 1px solid #fed7aa;
+  border-radius: 5px;
+  font-size: 10.5px;
+  font-weight: 700;
+  padding: 1.5px 6px;
+  margin-right: 6px;
+  vertical-align: 1px;
 }
 
 .result-why {
