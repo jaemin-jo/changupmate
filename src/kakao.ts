@@ -3,11 +3,17 @@
  *  없으면 안내 메시지를 돌려주고, 호출부가 사용자에게 보여준다.
  */
 const KAKAO_KEY: string = import.meta.env.VITE_KAKAO_JS_KEY ?? "";
+/** 카카오톡 채널 공개 ID (예: _abcdEF). 카카오 채널 관리자센터 → 상세설정에서 확인 */
+export const KAKAO_CHANNEL_ID: string = import.meta.env.VITE_KAKAO_CHANNEL_ID ?? "";
 
 interface KakaoSdk {
   init: (key: string) => void;
   isInitialized: () => boolean;
   Share: { sendDefault: (opts: unknown) => void };
+  Channel: {
+    addChannel: (opts: { channelPublicId: string }) => void;
+    chat: (opts: { channelPublicId: string }) => void;
+  };
 }
 
 declare global {
@@ -38,6 +44,27 @@ function loadSdk(): Promise<void> {
 
 export function kakaoReady(): boolean {
   return KAKAO_KEY.length > 0;
+}
+
+export function kakaoChannelReady(): boolean {
+  return KAKAO_KEY.length > 0 && KAKAO_CHANNEL_ID.length > 0;
+}
+
+/** 카카오톡 채널 추가(친구 맺기) 팝업 */
+export async function addKakaoChannel(): Promise<string | null> {
+  if (!kakaoChannelReady()) {
+    return "카카오 채널 연결은 앱 키·채널 ID 설정 후 활성화돼요.";
+  }
+  try {
+    await loadSdk();
+    const kakao = window.Kakao;
+    if (!kakao) return "카카오 SDK 초기화에 실패했어요.";
+    if (!kakao.isInitialized()) kakao.init(KAKAO_KEY);
+    kakao.Channel.addChannel({ channelPublicId: KAKAO_CHANNEL_ID });
+    return null;
+  } catch (e) {
+    return e instanceof Error ? e.message : "카카오 채널 연결에 실패했어요.";
+  }
 }
 
 /** 공고를 카카오톡으로 공유. 성공 시 null, 실패/미설정 시 안내 문자열 반환 */

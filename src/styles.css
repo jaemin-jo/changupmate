@@ -1786,6 +1786,35 @@ select.filter {
   }
 }
 
+/* 카카오 채널 버튼 + 토스트 */
+.kakao-ch-btn {
+  background: #fee500;
+  border-color: #fee500;
+  color: #181600;
+  font-size: 13px;
+  padding: 7px 12px;
+}
+
+.kakao-ch-btn:hover {
+  background: #f5dc00;
+}
+
+.toast {
+  position: fixed;
+  bottom: 28px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #18181b;
+  color: #fff;
+  padding: 11px 20px;
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 600;
+  box-shadow: 0 8px 26px rgba(0, 0, 0, 0.25);
+  z-index: 300;
+  animation: rise 0.25s ease both;
+}
+
 /* ── 관리자 페이지 ─────────────────────────────── */
 .admin-gate {
   min-height: 100dvh;

@@ -15,6 +15,7 @@ import { DetailPanel, faviconUrl, normalizeUrl, shotUrl } from "./DetailPanel";
 import { analyzeItem, noticeInsight } from "./gemini";
 import type { Analysis, NoticeInsight } from "./gemini";
 import { getGoogleAccessToken, GoogleBlockedError } from "./google";
+import { addKakaoChannel, kakaoChannelReady } from "./kakao";
 import {
   daysLeft,
   extractKeywords,
@@ -149,6 +150,11 @@ export default function App() {
   const [profile, setProfile] = useState<Profile | null>(loadProfile);
   const [authError, setAuthError] = useState<string | null>(null);
   const [authBlocked, setAuthBlocked] = useState(false);
+  const [toast, setToast] = useState<string | null>(null);
+  function showToastMsg(m: string) {
+    setToast(m);
+    setTimeout(() => setToast(null), 3000);
+  }
   const [authBusy, setAuthBusy] = useState(false);
 
   const [announcements, setAnnouncements] = useState<Announcement[] | null>(null);
@@ -651,6 +657,18 @@ export default function App() {
                 </>
               )}
             </div>
+            {kakaoChannelReady() && (
+              <button
+                className="btn kakao-ch-btn"
+                onClick={async () => {
+                  const msg = await addKakaoChannel();
+                  if (msg) showToastMsg(msg);
+                }}
+                title="카카오톡 채널 추가"
+              >
+                💬 채널 추가
+              </button>
+            )}
             {profile ? (
               <div className="user-chip">
                 <span className="avatar">{profile.nickname.slice(0, 1)}</span>
@@ -1101,6 +1119,7 @@ export default function App() {
           </span>
         </div>
       </footer>
+      {toast && <div className="toast">{toast}</div>}
     </>
   );
 }
