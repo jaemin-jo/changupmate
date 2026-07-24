@@ -158,10 +158,28 @@ export default function App() {
   const [region, setRegion] = useState("");
   const [stage, setStage] = useState("");
 
+  // 초기 로드 — 실패해도 8초마다 자동 재시도 (서버 콜드스타트 대비)
   useEffect(() => {
-    fetchAnnouncements()
-      .then(setAnnouncements)
-      .catch(() => setLoadError("공고 데이터를 불러오지 못했어요. 잠시 후 새로고침해 주세요."));
+    let dead = false;
+    let timer: ReturnType<typeof setTimeout> | undefined;
+    const load = () => {
+      fetchAnnouncements()
+        .then((a) => {
+          if (dead) return;
+          setAnnouncements(a);
+          setLoadError(null);
+        })
+        .catch(() => {
+          if (dead) return;
+          setLoadError("연결 오류 — 자동 재시도 중");
+          timer = setTimeout(load, 8000);
+        });
+    };
+    load();
+    return () => {
+      dead = true;
+      if (timer) clearTimeout(timer);
+    };
   }, []);
 
   // 실시간 매칭 — 입력 후 250ms 디바운스
@@ -532,8 +550,8 @@ export default function App() {
   }
 
   const dataStatus = loadError ? (
-    <span className="right" style={{ color: "var(--red)" }}>
-      <span className="dot red" /> 연결 오류
+    <span className="right" style={{ color: "var(--amber)" }}>
+      <span className="dot amber" /> 재연결 중…
     </span>
   ) : announcements ? (
     <span className="right status-green">
