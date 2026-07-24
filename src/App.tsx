@@ -254,6 +254,7 @@ export default function App() {
 
   // ── 사업 저장함 ──
   const [saved, setSaved] = useState<SavedItem[]>(loadSaved);
+  const [bmOpen, setBmOpen] = useState(false);
 
   useEffect(() => {
     localStorage.setItem(SAVED_KEY, JSON.stringify(saved));
@@ -266,16 +267,6 @@ export default function App() {
         ? s.filter((x) => x.sn !== sn)
         : [{ sn, title: r.notice.biz_pbanc_nm }, ...s].slice(0, 30),
     );
-  }
-
-  function openSaved(item: SavedItem) {
-    const notice = announcements?.find((a) => a.pbanc_sn === item.sn);
-    if (!notice) {
-      setSaved((s) => s.filter((x) => x.sn !== item.sn));
-      return;
-    }
-    setSelected({ notice, score: 0, matched: [] });
-    setSelectedPinned(true);
   }
 
   // ── 실시간 동기화 티커 + 주기적 재수집 ──
@@ -515,6 +506,73 @@ export default function App() {
           </span>
 
           <div className="topbar-right">
+            {/* 저장한 공고 리스트 (계정정보 왼쪽) */}
+            <div className="bm-wrap">
+              <button className="btn bm-toggle" onClick={() => setBmOpen((o) => !o)}>
+                <Ic size={14}>
+                  <path d="M19 21 12 17 5 21 V5 a2 2 0 0 1 2-2 h10 a2 2 0 0 1 2 2 Z" />
+                </Ic>
+                저장 공고
+                {saved.length > 0 && <span className="bm-count">{saved.length}</span>}
+              </button>
+              {bmOpen && (
+                <>
+                  <div className="bm-backdrop" onClick={() => setBmOpen(false)} />
+                  <div className="bm-panel">
+                    <div className="bm-head">저장한 공고</div>
+                    {saved.length === 0 ? (
+                      <div className="bm-empty">공고 카드의 ☆ 를 눌러 저장해보세요</div>
+                    ) : (
+                      saved.map((s) => {
+                        const n = announcements?.find((a) => a.pbanc_sn === s.sn);
+                        const d = n ? daysLeft(n.pbanc_rcpt_end_dt) : null;
+                        return (
+                          <div
+                            key={s.sn}
+                            className="bm-row"
+                            onClick={() => {
+                              if (!n) return;
+                              setSelected({ notice: n, score: 0, matched: [] });
+                              setSelectedPinned(true);
+                              setBmOpen(false);
+                            }}
+                          >
+                            <span className="bm-title">{s.title}</span>
+                            {d !== null && (
+                              <span className={`dday${d <= 7 ? " urgent" : ""}`}>
+                                {d === 0 ? "오늘" : `D-${d}`}
+                              </span>
+                            )}
+                            {n?.detl_pg_url && (
+                              <a
+                                className="bm-act"
+                                href={n.detl_pg_url}
+                                target="_blank"
+                                rel="noreferrer"
+                                title="공고 페이지"
+                                onClick={(e) => e.stopPropagation()}
+                              >
+                                ↗
+                              </a>
+                            )}
+                            <span
+                              className="bm-act del"
+                              title="저장 해제"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setSaved((list) => list.filter((x) => x.sn !== s.sn));
+                              }}
+                            >
+                              ✕
+                            </span>
+                          </div>
+                        );
+                      })
+                    )}
+                  </div>
+                </>
+              )}
+            </div>
             {profile ? (
               <div className="user-chip">
                 <span className="avatar">{profile.nickname.slice(0, 1)}</span>
@@ -675,28 +733,6 @@ export default function App() {
               </>
             )}
 
-            {saved.length > 0 && (
-              <>
-                <span className="panel-label">저장한 사업</span>
-                <div className="card saved-card">
-                  {saved.map((s) => (
-                    <button key={s.sn} className="saved-chip" onClick={() => openSaved(s)}>
-                      <span className="saved-title">{s.title}</span>
-                      <span
-                        className="saved-x"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setSaved((list) => list.filter((x) => x.sn !== s.sn));
-                        }}
-                      >
-                        ✕
-                      </span>
-                    </button>
-                  ))}
-                </div>
-              </>
-            )}
-
             <span className="panel-label">매칭 필터</span>
             <div className="card">
               <div className="card-row">
@@ -831,6 +867,16 @@ export default function App() {
                               {dt && ` (${formatDeadlineTime(dt)})`}
                             </span>
                           )}
+                          <button
+                            className={`bm-btn${saved.some((s) => s.sn === sn) ? " on" : ""}`}
+                            title={saved.some((s) => s.sn === sn) ? "저장 해제" : "공고 저장"}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              toggleSave(r);
+                            }}
+                          >
+                            {saved.some((s) => s.sn === sn) ? "★" : "☆"}
+                          </button>
                         </div>
                         <div className="result-meta">
                           {[r.notice.pbanc_ntrp_nm, r.notice.supt_biz_clsfc, r.notice.supt_regin]
