@@ -14,7 +14,14 @@ import type { Mood } from "./Buddy";
 import { DetailPanel, faviconUrl, normalizeUrl, shotUrl } from "./DetailPanel";
 import { analyzeItem, noticeInsight } from "./gemini";
 import type { Analysis, NoticeInsight } from "./gemini";
-import { getGoogleAccessToken, GoogleBlockedError } from "./google";
+import {
+  getGoogleAccessToken,
+  GoogleBlockedError,
+  InAppBrowserError,
+  inAppName,
+  isInAppBrowser,
+  openInExternalBrowser,
+} from "./google";
 import { addKakaoChannel, kakaoChannelReady } from "./kakao";
 import {
   daysLeft,
@@ -150,6 +157,7 @@ export default function App() {
   const [profile, setProfile] = useState<Profile | null>(loadProfile);
   const [authError, setAuthError] = useState<string | null>(null);
   const [authBlocked, setAuthBlocked] = useState(false);
+  const [inApp] = useState(isInAppBrowser);
   const [toast, setToast] = useState<string | null>(null);
   function showToastMsg(m: string) {
     setToast(m);
@@ -547,7 +555,12 @@ export default function App() {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(p));
       setProfile(p);
     } catch (err) {
-      if (err instanceof GoogleBlockedError) {
+      if (err instanceof InAppBrowserError) {
+        setAuthBlocked(true);
+        setAuthError(
+          `${inAppName()} 인앱 브라우저에서는 구글 로그인이 제한돼요. 기본 브라우저(크롬·사파리)로 열거나 이메일 로그인을 이용해 주세요.`,
+        );
+      } else if (err instanceof GoogleBlockedError) {
         setAuthBlocked(true);
         setAuthError(err.message);
       } else {
@@ -704,11 +717,35 @@ export default function App() {
           </div>
         </div>
 
+        {/* 인앱 브라우저(카카오톡 등)면 로그인 시도 전에 미리 안내 */}
+        {inApp && !profile && (
+          <div className="err-banner block-banner">
+            📱 {inAppName()} 인앱 브라우저에서는 구글 로그인이 제한돼요.
+            <span className="block-hint">
+              {" "}아래 버튼으로 크롬·사파리에서 열거나, 이메일 로그인을 이용해 주세요.
+            </span>
+            <button
+              className="btn primary inapp-open-btn"
+              onClick={() => openInExternalBrowser(window.location.href)}
+            >
+              기본 브라우저로 열기 ↗
+            </button>
+          </div>
+        )}
+
         {authError && (
           <div className={`err-banner${authBlocked ? " block-banner" : ""}`}>
-            {authBlocked ? "🛡️ " : ""}
+            {authBlocked ? (inApp ? "📱 " : "🛡️ ") : ""}
             {authError}
-            {authBlocked && (
+            {authBlocked && inApp && (
+              <button
+                className="btn primary inapp-open-btn"
+                onClick={() => openInExternalBrowser(window.location.href)}
+              >
+                기본 브라우저로 열기 ↗
+              </button>
+            )}
+            {authBlocked && !inApp && (
               <span className="block-hint">
                 {" "}uBlock 아이콘 클릭 → 큰 전원 버튼을 눌러 이 사이트에서 끄고 새로고침하면 됩니다.
               </span>

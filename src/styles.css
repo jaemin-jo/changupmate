@@ -1708,6 +1708,13 @@ select.filter {
   font-weight: 600;
 }
 
+.inapp-open-btn {
+  display: inline-flex;
+  margin-top: 10px;
+  padding: 8px 16px;
+  font-size: 13px;
+}
+
 @keyframes rise {
   from {
     opacity: 0;
