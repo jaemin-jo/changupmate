@@ -2079,6 +2079,24 @@ select.filter {
   background: #fef3c7;
   color: #b45309;
 }
+.k-guest {
+  background: #f4f4f5;
+  color: #71717a;
+}
+
+.admin-sub-inline {
+  margin-left: 8px;
+  font-size: 11.5px;
+  font-weight: 500;
+  color: var(--faint);
+}
+
+.item-text {
+  white-space: pre-wrap;
+  word-break: break-word;
+  line-height: 1.5;
+  max-width: 640px;
+}
 
 .admin-note {
   color: var(--faint);

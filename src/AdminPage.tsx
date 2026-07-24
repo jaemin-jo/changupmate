@@ -13,15 +13,24 @@ interface AdminEvent {
   nickname: string | null;
   at: string;
 }
+interface AdminItem {
+  text: string;
+  email: string | null;
+  logged_in: number;
+  at: string;
+}
 interface Overview {
   stats: {
     total_users: number;
     today_signups: number;
     total_logins: number;
     logins_today: number;
+    total_items: number;
+    items_today: number;
   };
   users: AdminUser[];
   events: AdminEvent[];
+  items: AdminItem[];
 }
 
 const KEY_STORE = "admin.key";
@@ -143,7 +152,7 @@ export function AdminPage() {
           <Stat label="총 가입 회원" value={s?.total_users ?? 0} accent="blue" />
           <Stat label="오늘 가입" value={s?.today_signups ?? 0} accent="green" />
           <Stat label="누적 로그인" value={s?.total_logins ?? 0} accent="ink" />
-          <Stat label="오늘 로그인" value={s?.logins_today ?? 0} accent="amber" />
+          <Stat label="입력된 사업 아이템" value={s?.total_items ?? 0} accent="amber" />
         </div>
 
         <div className="admin-cols">
@@ -220,6 +229,46 @@ export function AdminPage() {
             </div>
           </section>
         </div>
+
+        <section className="admin-panel" style={{ marginTop: 18 }}>
+          <h3>
+            입력된 사업 아이템 <span className="cnt">{data?.items.length ?? 0}</span>
+            <span className="admin-sub-inline">비로그인 포함 · 사용자가 적은 아이템 설명</span>
+          </h3>
+          <div className="admin-table-wrap" style={{ maxHeight: 520 }}>
+            <table className="admin-table">
+              <thead>
+                <tr>
+                  <th style={{ width: 90 }}>구분</th>
+                  <th>사업 아이템 내용</th>
+                  <th style={{ width: 160 }}>사용자</th>
+                  <th style={{ width: 150 }}>입력 시각</th>
+                </tr>
+              </thead>
+              <tbody>
+                {(data?.items ?? []).map((it, i) => (
+                  <tr key={i}>
+                    <td>
+                      <span className={`kind-chip ${it.logged_in ? "k-login" : "k-guest"}`}>
+                        {it.logged_in ? "회원" : "비로그인"}
+                      </span>
+                    </td>
+                    <td className="item-text">{it.text}</td>
+                    <td className="mono mut">{it.email ?? "—"}</td>
+                    <td className="mut">{it.at}</td>
+                  </tr>
+                ))}
+                {data && data.items.length === 0 && (
+                  <tr>
+                    <td colSpan={4} className="empty">
+                      아직 입력된 아이템이 없어요
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
+        </section>
 
         <p className="admin-note">
           ※ 현재 회원 DB는 서버리스 임시 저장소(/tmp)라 서버 인스턴스가 재활용되면 초기화됩니다. 영구

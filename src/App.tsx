@@ -6,6 +6,7 @@ import {
   fetchGlobalOpportunities,
   fetchGoogleClientId,
   googleLoginApi,
+  logItem,
   refreshAnnouncements,
 } from "./api";
 import type { GlobalOpportunity } from "./api";
@@ -229,6 +230,32 @@ export default function App() {
   }, [announcements, region, stage]);
 
   const liveKeywords = useMemo(() => extractKeywords(text), [text]);
+
+  // ── 입력한 사업 아이템 수집 (비로그인 포함) ──
+  // 입력이 멈추고(디바운스 후) 4초 더 지나면 안정된 것으로 보고 1회 기록. 중복 방지.
+  const lastLoggedItem = useRef("");
+  useEffect(() => {
+    const t = debounced.trim();
+    if (t.length < 6 || t === lastLoggedItem.current) return;
+    const timer = setTimeout(() => {
+      lastLoggedItem.current = t;
+      logItem(t, profile?.email ?? null);
+    }, 4000);
+    return () => clearTimeout(timer);
+  }, [debounced, profile]);
+
+  // 페이지 이탈 시 아직 기록 안 된 최신 입력을 마지막으로 저장
+  useEffect(() => {
+    const onLeave = () => {
+      const t = text.trim();
+      if (t.length >= 6 && t !== lastLoggedItem.current) {
+        lastLoggedItem.current = t;
+        logItem(t, profile?.email ?? null);
+      }
+    };
+    window.addEventListener("pagehide", onLeave);
+    return () => window.removeEventListener("pagehide", onLeave);
+  }, [text, profile]);
 
   // 입력에 링크가 있으면 미리보기 썸네일 표시 (타이핑 중 잘린 URL 방지를 위해 디바운스 기준)
   const inputUrl = useMemo(() => debounced.match(/https?:\/\/[^\s]+/)?.[0] ?? null, [debounced]);

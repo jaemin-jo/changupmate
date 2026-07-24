@@ -89,6 +89,29 @@ export function fetchAnnouncementDetail(sn: number): Promise<AnnouncementDetail 
   return p;
 }
 
+/** 사용자가 입력한 사업 아이템을 서버에 기록 (비로그인 포함). 실패는 조용히 무시 */
+export function logItem(text: string, email: string | null): void {
+  try {
+    const body = JSON.stringify({ text: text.slice(0, 2000), email });
+    // sendBeacon(text/plain)은 CORS 프리플라이트 없이 전송 가능 → 이탈 시에도 안전
+    if (navigator.sendBeacon) {
+      navigator.sendBeacon(
+        `${API_BASE}/api/usage/item`,
+        new Blob([body], { type: "text/plain;charset=UTF-8" }),
+      );
+    } else {
+      fetch(`${API_BASE}/api/usage/item`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body,
+        keepalive: true,
+      }).catch(() => {});
+    }
+  } catch {
+    /* noop */
+  }
+}
+
 export async function fetchGoogleClientId(): Promise<string> {
   const res = await fetch(`${API_BASE}/api/auth/google/config`);
   if (!res.ok) return "";
