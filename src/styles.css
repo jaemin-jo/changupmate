@@ -1633,15 +1633,16 @@ select.filter {
     padding: 34px 32px 70px;
   }
 
+  /* 사업내용(좌) 패널을 넓게 — 좌 40 : 우 60 비율 */
   .canvas {
-    grid-template-columns: 430px 1fr;
+    grid-template-columns: minmax(460px, 2fr) 3fr;
     gap: 30px;
     padding: 30px;
   }
 
   .idea-input,
   .input-mirror {
-    min-height: 190px;
+    min-height: 230px;
   }
 
   .detail-panel {
@@ -1664,10 +1665,6 @@ select.filter {
   .page,
   .footer-inner {
     max-width: 1880px;
-  }
-
-  .canvas {
-    grid-template-columns: 470px 1fr;
   }
 
   .detail-panel {
