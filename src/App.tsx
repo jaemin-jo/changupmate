@@ -14,7 +14,7 @@ import type { Mood } from "./Buddy";
 import { DetailPanel, faviconUrl, normalizeUrl, shotUrl } from "./DetailPanel";
 import { analyzeItem, noticeInsight } from "./gemini";
 import type { Analysis, NoticeInsight } from "./gemini";
-import { getGoogleAccessToken } from "./google";
+import { getGoogleAccessToken, GoogleBlockedError } from "./google";
 import {
   daysLeft,
   extractKeywords,
@@ -148,6 +148,7 @@ function loadProfile(): Profile | null {
 export default function App() {
   const [profile, setProfile] = useState<Profile | null>(loadProfile);
   const [authError, setAuthError] = useState<string | null>(null);
+  const [authBlocked, setAuthBlocked] = useState(false);
   const [authBusy, setAuthBusy] = useState(false);
 
   const [announcements, setAnnouncements] = useState<Announcement[] | null>(null);
@@ -529,6 +530,7 @@ export default function App() {
   async function handleGoogleLogin() {
     if (authBusy) return;
     setAuthError(null);
+    setAuthBlocked(false);
     setAuthBusy(true);
     try {
       const clientId = await fetchGoogleClientId();
@@ -538,7 +540,12 @@ export default function App() {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(p));
       setProfile(p);
     } catch (err) {
-      setAuthError(err instanceof Error ? err.message : "구글 로그인에 실패했어요.");
+      if (err instanceof GoogleBlockedError) {
+        setAuthBlocked(true);
+        setAuthError(err.message);
+      } else {
+        setAuthError(err instanceof Error ? err.message : "구글 로그인에 실패했어요.");
+      }
     } finally {
       setAuthBusy(false);
     }
@@ -678,7 +685,17 @@ export default function App() {
           </div>
         </div>
 
-        {authError && <div className="err-banner">{authError}</div>}
+        {authError && (
+          <div className={`err-banner${authBlocked ? " block-banner" : ""}`}>
+            {authBlocked ? "🛡️ " : ""}
+            {authError}
+            {authBlocked && (
+              <span className="block-hint">
+                {" "}uBlock 아이콘 클릭 → 큰 전원 버튼을 눌러 이 사이트에서 끄고 새로고침하면 됩니다.
+              </span>
+            )}
+          </div>
+        )}
 
         <div className="canvas">
           {/* ── 왼쪽: 입력 + 상태 ── */}
