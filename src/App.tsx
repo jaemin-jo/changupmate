@@ -608,7 +608,7 @@ export default function App() {
             </Ic>
           </div>
           <h1 className="page-title">
-            아이템 매칭<span className="sub">· 실시간</span>
+            사업지원공고 매칭<span className="sub">· 실시간</span>
           </h1>
           <div className="page-actions">
             <a className="btn primary" href="https://www.k-startup.go.kr" target="_blank" rel="noreferrer">
