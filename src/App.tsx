@@ -384,7 +384,8 @@ export default function App() {
     const enKeys =
       activeLlm?.keywords_en && activeLlm.keywords_en.length > 0
         ? activeLlm.keywords_en
-        : (debounced.toLowerCase().match(/[a-z0-9]{2,}/g) ?? []);
+        : // 불용어 필터를 거친 영어 키워드만 (extractKeywords가 걸러줌)
+          extractKeywords(debounced).filter((k) => /^[a-z0-9]/.test(k) && k.length >= 3);
     if (enKeys.length === 0) return [];
     return globalOpps
       .map((g) => {

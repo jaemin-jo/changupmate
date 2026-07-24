@@ -10,6 +10,22 @@ const STOPWORDS = new Set([
   "중인", "중이에요", "중입니다", "만들고", "하려고", "싶어요", "싶어",
 ]);
 
+/** 영어 불용어 — 'to, on, or, it' 같은 기능어가 키워드로 잡히지 않도록 */
+const EN_STOPWORDS = new Set([
+  "the", "and", "for", "with", "that", "this", "you", "your", "our", "are", "was", "were",
+  "will", "can", "has", "have", "had", "not", "but", "all", "any", "from", "into", "just",
+  "get", "gets", "let", "via", "use", "uses", "using", "make", "makes", "made", "who", "what",
+  "when", "where", "how", "why", "its", "his", "her", "their", "them", "they", "then", "than",
+  "out", "off", "over", "under", "about", "also", "more", "most", "such", "some", "each",
+  "on", "or", "an", "to", "in", "at", "of", "is", "it", "be", "as", "by", "we", "us", "so",
+  "do", "does", "done", "up", "no", "yes", "my", "me", "he", "she", "if", "etc",
+  "app", "apps", "service", "services", "platform", "system", "user", "users", "based",
+  "takes", "wheel", "flow", "straight", "dev", "workflow", "other", "tools", "connect",
+]);
+
+/** 이 2글자 영어는 의미가 있어 허용 (분야/기술 약어) */
+const EN_SHORT_ALLOW = new Set(["ai", "ar", "vr", "xr", "ml", "ux", "ui", "io", "5g", "3d", "ba", "hr"]);
+
 /** 서술형 어미 — "예비창업자입니다" → "예비창업자", "준비하는" → "준비" */
 const SUFFIXES = [
   "입니다", "이에요", "인데요", "예요", "에요", "이고", "이며", "인데",
@@ -81,6 +97,12 @@ export function extractKeywords(text: string): string[] {
 
   function push(tok: string) {
     if (tok.length < 2 || STOPWORDS.has(tok) || seen.has(tok)) return;
+    // 영어(알파벳) 토큰 필터: 불용어 제외 + 2글자는 화이트리스트만 허용
+    const isAscii = /^[a-z0-9&+]+$/.test(tok);
+    if (isAscii) {
+      if (EN_STOPWORDS.has(tok)) return;
+      if (tok.length <= 2 && !EN_SHORT_ALLOW.has(tok)) return;
+    }
     seen.add(tok);
     out.push(tok);
   }

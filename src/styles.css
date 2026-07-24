@@ -1786,6 +1786,271 @@ select.filter {
   }
 }
 
+/* ── 관리자 페이지 ─────────────────────────────── */
+.admin-gate {
+  min-height: 100dvh;
+  display: grid;
+  place-items: center;
+  padding: 20px;
+  background: var(--bg);
+}
+
+.admin-card {
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  box-shadow: var(--shadow);
+  padding: 30px 28px;
+  width: min(360px, 92vw);
+  text-align: center;
+}
+
+.admin-logo {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  font-weight: 800;
+  font-size: 17px;
+}
+
+.admin-sub {
+  color: var(--mut);
+  font-size: 13px;
+  margin: 14px 0 18px;
+}
+
+.admin-input {
+  width: 100%;
+  border: 1px solid var(--line);
+  border-radius: 9px;
+  padding: 11px 13px;
+  font: inherit;
+  font-size: 14px;
+  margin-bottom: 10px;
+}
+
+.admin-input:focus {
+  outline: none;
+  border-color: var(--blue);
+}
+
+.admin-card .btn {
+  width: 100%;
+  justify-content: center;
+}
+
+.admin-err {
+  color: var(--red);
+  font-size: 12.5px;
+  margin: 10px 0 0;
+}
+
+.admin-back {
+  display: inline-block;
+  margin-top: 16px;
+  color: var(--faint);
+  font-size: 12.5px;
+}
+
+.admin-back:hover {
+  color: var(--ink);
+}
+
+.admin-wrap {
+  min-height: 100dvh;
+  background: var(--bg);
+}
+
+.admin-head {
+  background: #fff;
+  border-bottom: 1px solid var(--line);
+  padding: 0 24px;
+  height: 58px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.admin-head-right {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.admin-live {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12.5px;
+  color: var(--green);
+  font-weight: 600;
+}
+
+.admin-body {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 26px 24px 60px;
+}
+
+.stat-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 14px;
+  margin-bottom: 22px;
+}
+
+@media (max-width: 720px) {
+  .stat-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+.stat-tile {
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  box-shadow: var(--shadow);
+  padding: 16px 18px;
+}
+
+.stat-value {
+  font-size: 28px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+
+.stat-label {
+  color: var(--mut);
+  font-size: 12.5px;
+  margin-top: 4px;
+}
+
+.accent-blue .stat-value {
+  color: var(--blue);
+}
+.accent-green .stat-value {
+  color: var(--green);
+}
+.accent-amber .stat-value {
+  color: var(--amber);
+}
+.accent-ink .stat-value {
+  color: var(--ink);
+}
+
+.admin-cols {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 18px;
+}
+
+@media (max-width: 900px) {
+  .admin-cols {
+    grid-template-columns: 1fr;
+  }
+}
+
+.admin-panel {
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  box-shadow: var(--shadow);
+  overflow: hidden;
+}
+
+.admin-panel h3 {
+  margin: 0;
+  padding: 14px 16px;
+  font-size: 14.5px;
+  font-weight: 700;
+  border-bottom: 1px solid var(--line-soft);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.admin-panel h3 .cnt {
+  background: #18181b;
+  color: #fff;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 2px 8px;
+}
+
+.admin-table-wrap {
+  max-height: 460px;
+  overflow: auto;
+}
+
+.admin-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12.5px;
+}
+
+.admin-table th {
+  position: sticky;
+  top: 0;
+  background: var(--panel);
+  color: var(--mut);
+  font-weight: 600;
+  text-align: left;
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--line-soft);
+  white-space: nowrap;
+}
+
+.admin-table td {
+  padding: 9px 12px;
+  border-bottom: 1px solid var(--line-soft);
+  vertical-align: top;
+}
+
+.admin-table .mut {
+  color: var(--faint);
+}
+.admin-table .mono {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 12px;
+}
+.admin-table .empty {
+  text-align: center;
+  color: var(--faint);
+  padding: 26px;
+}
+
+.kind-chip {
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 700;
+  border-radius: 5px;
+  padding: 2px 7px;
+}
+.k-signup {
+  background: #ecfdf5;
+  color: var(--green);
+}
+.k-login {
+  background: #eff6ff;
+  color: var(--blue);
+}
+.k-google {
+  background: #fef3c7;
+  color: #b45309;
+}
+
+.admin-note {
+  color: var(--faint);
+  font-size: 12px;
+  margin-top: 20px;
+  line-height: 1.6;
+}
+
 /* ── 모바일 최적화 ─────────────────────────────── */
 @media (max-width: 640px) {
   .topbar-inner {
