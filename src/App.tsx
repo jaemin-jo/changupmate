@@ -5,9 +5,11 @@ import {
   fetchAnnouncements,
   fetchGlobalOpportunities,
   fetchGoogleClientId,
+  fetchIdeas,
   googleLoginApi,
   logItem,
   refreshAnnouncements,
+  syncIdea,
 } from "./api";
 import type { GlobalOpportunity } from "./api";
 import { Buddy, IDLE_LINE, THINKING_LINES, verdictLine } from "./Buddy";
@@ -89,6 +91,7 @@ const IDEAS_KEY = "matcher.ideas";
 interface SavedIdea {
   id: string;
   text: string;
+  pinned?: boolean;
 }
 
 function loadIdeas(): SavedIdea[] {
@@ -374,13 +377,43 @@ export default function App() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [debounced]);
 
-  // ── 내 아이템 저장/불러오기 ──
+  // ── 내 아이템 저장/불러오기 (localStorage + 로그인 시 DB 동기화) ──
   const [ideas, setIdeas] = useState<SavedIdea[]>(loadIdeas);
   const [ideaMsg, setIdeaMsg] = useState<string | null>(null);
+  const pinnedApplied = useRef(false);
 
   useEffect(() => {
     localStorage.setItem(IDEAS_KEY, JSON.stringify(ideas));
   }, [ideas]);
+
+  // 로그인하면 DB의 저장 아이템을 불러와 병합 (다른 기기에서 저장한 것도 복원)
+  useEffect(() => {
+    if (!profile?.email) return;
+    fetchIdeas(profile.email).then((dbIdeas) => {
+      if (dbIdeas.length === 0) return;
+      setIdeas((local) => {
+        const seen = new Set(local.map((i) => i.text));
+        const merged = [...local];
+        for (const d of dbIdeas) {
+          const existing = merged.find((i) => i.text === d.text);
+          if (existing) existing.pinned = existing.pinned || d.pinned === 1;
+          else if (!seen.has(d.text))
+            merged.push({ id: `db-${d.text.slice(0, 8)}`, text: d.text, pinned: d.pinned === 1 });
+        }
+        return merged.slice(0, 10);
+      });
+    });
+  }, [profile]);
+
+  // 고정된 아이템이 있으면 첫 진입 시 자동으로 입력란에 채워 검색 실행
+  useEffect(() => {
+    if (pinnedApplied.current || text.trim()) return;
+    const pin = ideas.find((i) => i.pinned);
+    if (pin) {
+      pinnedApplied.current = true;
+      setText(pin.text);
+    }
+  }, [ideas, text]);
 
   function saveIdea() {
     const t = text.trim();
@@ -390,8 +423,26 @@ export default function App() {
     } else {
       setIdeas((list) => [{ id: `idea-${Date.now()}`, text: t }, ...list].slice(0, 10));
       setIdeaMsg("아이템을 저장했어요!");
+      if (profile?.email) syncIdea(profile.email, "save", t);
     }
     setTimeout(() => setIdeaMsg(null), 2200);
+  }
+
+  function removeIdea(idea: SavedIdea) {
+    setIdeas((list) => list.filter((x) => x.id !== idea.id));
+    if (profile?.email) syncIdea(profile.email, "delete", idea.text);
+  }
+
+  /** 고정핀 토글 — 하나만 고정(다른 건 해제). 고정하면 그 아이템으로 즉시 검색 */
+  function togglePin(idea: SavedIdea) {
+    const willPin = !idea.pinned;
+    setIdeas((list) =>
+      list.map((x) => ({ ...x, pinned: x.id === idea.id ? willPin : false })),
+    );
+    if (willPin) setText(idea.text);
+    if (profile?.email) syncIdea(profile.email, "pin", willPin ? idea.text : "");
+    setIdeaMsg(willPin ? "📌 이 아이템으로 고정했어요 — 접속 시 자동 검색돼요" : "고정을 해제했어요");
+    setTimeout(() => setIdeaMsg(null), 2600);
   }
 
   // ── 사업 저장함 ──
@@ -925,23 +976,34 @@ export default function App() {
                 <span className="panel-label">저장한 아이템</span>
                 <div className="card saved-card">
                   {ideas.map((idea) => (
-                    <button
+                    <div
                       key={idea.id}
-                      className="saved-chip"
+                      className={`saved-chip${idea.pinned ? " pinned" : ""}`}
                       onClick={() => setText(idea.text)}
                       title={idea.text}
+                      role="button"
                     >
+                      <button
+                        className={`pin-btn${idea.pinned ? " on" : ""}`}
+                        title={idea.pinned ? "고정 해제" : "이 아이템으로 고정 (접속 시 자동 검색)"}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          togglePin(idea);
+                        }}
+                      >
+                        📌
+                      </button>
                       <span className="saved-title">{ideaLabel(idea.text)}</span>
                       <span
                         className="saved-x"
                         onClick={(e) => {
                           e.stopPropagation();
-                          setIdeas((list) => list.filter((x) => x.id !== idea.id));
+                          removeIdea(idea);
                         }}
                       >
                         ✕
                       </span>
-                    </button>
+                    </div>
                   ))}
                 </div>
               </>

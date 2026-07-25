@@ -1404,6 +1404,31 @@ select.filter {
   background: #f8faff;
 }
 
+.saved-chip.pinned {
+  border-color: #fbbf24;
+  background: #fffbeb;
+}
+
+.pin-btn {
+  flex: none;
+  border: none;
+  background: none;
+  padding: 0 2px;
+  font-size: 13px;
+  line-height: 1;
+  filter: grayscale(1) opacity(0.4);
+  cursor: pointer;
+}
+
+.pin-btn:hover {
+  filter: none;
+  transform: scale(1.15);
+}
+
+.pin-btn.on {
+  filter: none;
+}
+
 .saved-title {
   flex: 1;
   min-width: 0;

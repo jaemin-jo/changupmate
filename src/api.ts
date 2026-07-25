@@ -112,6 +112,43 @@ export function logItem(text: string, email: string | null): void {
   }
 }
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+export interface DbIdea {
+  text: string;
+  pinned: number;
+}
+
+/** 로그인 사용자의 저장 아이템 동기화 (save|delete|pin). 최신 목록 반환 */
+export async function syncIdea(
+  email: string,
+  action: "save" | "delete" | "pin",
+  text: string,
+): Promise<DbIdea[]> {
+  try {
+    const res = await fetch(`${API_BASE}/api/usage/idea`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email, action, text }),
+    });
+    if (!res.ok) return [];
+    const d = (await res.json()) as { ideas?: DbIdea[] };
+    return d.ideas ?? [];
+  } catch {
+    return [];
+  }
+}
+
+export async function fetchIdeas(email: string): Promise<DbIdea[]> {
+  try {
+    const res = await fetch(`${API_BASE}/api/usage/ideas?email=${encodeURIComponent(email)}`);
+    if (!res.ok) return [];
+    const d = (await res.json()) as { ideas?: DbIdea[] };
+    return d.ideas ?? [];
+  } catch {
+    return [];
+  }
+}
+
 export async function fetchGoogleClientId(): Promise<string> {
   const res = await fetch(`${API_BASE}/api/auth/google/config`);
   if (!res.ok) return "";
