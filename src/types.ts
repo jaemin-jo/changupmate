@@ -15,6 +15,11 @@ export interface Announcement {
   industries: string[];
   /** 공고 출처 — 기본 K-Startup(undefined), "bizinfo"=기업마당 */
   source?: string;
+  // ── 기업마당 공고 부가 필드 (상세 API 없이 이 값으로 상세 구성) ──
+  pbanc_ctnt?: string | null;
+  biz_gdnc_url?: string | null;
+  aply_mthd_onli_rcpt_istc?: string | null;
+  biz_prch_dprt_nm?: string | null;
 }
 
 /** /api/announcement/{sn} 상세 — slim + 본문/신청방법/링크/담당자 */

@@ -145,6 +145,36 @@ function InputLinkPreview({ url }: { url: string }) {
   );
 }
 
+/** 기업마당 공고(sn<0)는 상세 API가 없으므로 공고 자체 필드로 상세를 구성 */
+function bizinfoDetail(n: Announcement): AnnouncementDetail {
+  return {
+    pbanc_sn: n.pbanc_sn,
+    biz_pbanc_nm: n.biz_pbanc_nm,
+    pbanc_ntrp_nm: n.pbanc_ntrp_nm,
+    sprv_inst: n.sprv_inst,
+    supt_biz_clsfc: n.supt_biz_clsfc,
+    supt_regin: n.supt_regin,
+    aply_trgt: n.aply_trgt,
+    biz_enyy: n.biz_enyy,
+    biz_trgt_age: n.biz_trgt_age,
+    pbanc_rcpt_bgng_dt: n.pbanc_rcpt_bgng_dt,
+    pbanc_rcpt_end_dt: n.pbanc_rcpt_end_dt,
+    detl_pg_url: n.detl_pg_url,
+    pbanc_ctnt: n.pbanc_ctnt ?? null,
+    aply_excl_trgt_ctnt: null,
+    aply_mthd_vst_rcpt_istc: null,
+    aply_mthd_pssr_rcpt_istc: null,
+    aply_mthd_fax_rcpt_istc: null,
+    aply_mthd_eml_rcpt_istc: null,
+    aply_mthd_onli_rcpt_istc: n.aply_mthd_onli_rcpt_istc ?? null,
+    aply_mthd_etc_istc: null,
+    biz_gdnc_url: n.biz_gdnc_url ?? null, // 온라인신청 바로가기 → 썸네일/미리보기
+    biz_aply_url: n.biz_gdnc_url ?? null,
+    prch_cnpl_no: null,
+    biz_prch_dprt_nm: n.biz_prch_dprt_nm ?? null,
+  };
+}
+
 function loadProfile(): Profile | null {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
@@ -459,6 +489,11 @@ export default function App() {
   useEffect(() => {
     for (const r of results.slice(0, 10)) {
       const sn = r.notice.pbanc_sn;
+      if (sn < 0) {
+        // 기업마당: 상세 API 없음 → 공고 자체 필드로 구성
+        setDetailMap((m) => (m[sn] ? m : { ...m, [sn]: bizinfoDetail(r.notice) }));
+        continue;
+      }
       fetchAnnouncementDetail(sn)
         .then((d) => {
           if (d) setDetailMap((m) => (m[sn] ? m : { ...m, [sn]: d }));
@@ -507,7 +542,11 @@ export default function App() {
   useEffect(() => {
     if (!selected) return;
     const sn = selected.notice.pbanc_sn;
-    fetchAnnouncementDetail(sn)
+    const detailPromise =
+      sn < 0
+        ? Promise.resolve(bizinfoDetail(selected.notice)) // 기업마당
+        : fetchAnnouncementDetail(sn);
+    detailPromise
       .then((d) => {
         if (d) setDetailMap((m) => (m[sn] ? m : { ...m, [sn]: d }));
         if (!d || focus?.sn === sn) return;
