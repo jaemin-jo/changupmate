@@ -158,6 +158,25 @@ button {
   gap: 10px;
 }
 
+/* 상단바 요소는 절대 세로로 줄바꿈되지 않게 */
+.topbar-right .btn,
+.bm-toggle,
+.kakao-ch-btn,
+.login-btn,
+.user-chip,
+.user-chip span,
+.link-mut,
+.live-pill {
+  white-space: nowrap;
+  flex: none;
+}
+
+/* 데스크톱: 축약 아이콘/짧은 라벨 숨김 (풀 라벨만) */
+.tb-icon,
+.login-short {
+  display: none;
+}
+
 .avatar {
   width: 30px;
   height: 30px;
@@ -2124,14 +2143,47 @@ select.filter {
     padding: 5px 6px;
   }
 
+  .topbar-right {
+    gap: 6px;
+  }
+
   .topbar-right .btn,
   .btn {
-    padding: 7px 11px;
+    padding: 7px 9px;
     font-size: 12.5px;
+  }
+
+  /* 모바일: 버튼 긴 라벨 숨기고 아이콘/짧은 텍스트로 압축 */
+  .tb-label {
+    display: none;
+  }
+  .tb-icon,
+  .login-short {
+    display: inline;
+  }
+
+  .bm-toggle,
+  .kakao-ch-btn {
+    padding: 7px 10px;
+    gap: 5px;
   }
 
   .user-chip {
     font-size: 13px;
+    gap: 6px;
+  }
+
+  .link-mut {
+    padding: 4px 6px;
+    font-size: 15px;
+    line-height: 1;
+  }
+
+  /* 아주 좁은 화면(≤390px)에선 브랜드 텍스트도 숨겨 CM 로고만 */
+  @media (max-width: 390px) {
+    .brand-name-top {
+      display: none;
+    }
   }
 
   .tabs-inner {

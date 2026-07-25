@@ -622,11 +622,11 @@ export default function App() {
       <header className="topbar">
         <div className="topbar-inner">
           <span className="logo-mark">K</span>
-          <span className="crumb" style={{ fontSize: 16, fontWeight: 800 }}>
+          <span className="crumb brand-name-top" style={{ fontSize: 16, fontWeight: 800 }}>
             창업메이트
           </span>
           <span className="live-pill">
-            <span className="dot" /> 실시간 매칭
+            <span className="dot" /> <span className="tb-label">실시간 매칭</span>
           </span>
 
           <div className="topbar-right">
@@ -636,7 +636,7 @@ export default function App() {
                 <Ic size={14}>
                   <path d="M19 21 12 17 5 21 V5 a2 2 0 0 1 2-2 h10 a2 2 0 0 1 2 2 Z" />
                 </Ic>
-                저장 공고
+                <span className="tb-label">저장 공고</span>
                 {saved.length > 0 && <span className="bm-count">{saved.length}</span>}
               </button>
               {bmOpen && (
@@ -706,21 +706,25 @@ export default function App() {
                 }}
                 title="카카오톡 채널 추가"
               >
-                💬 채널 추가
+                💬<span className="tb-label"> 채널 추가</span>
               </button>
             )}
             {profile ? (
               <div className="user-chip">
                 <span className="avatar">{profile.nickname.slice(0, 1)}</span>
-                <span>{profile.nickname} 님</span>
-                <button className="link-mut" onClick={handleLogout}>
-                  로그아웃
+                <span className="tb-label">{profile.nickname} 님</span>
+                <button className="link-mut" onClick={handleLogout} title="로그아웃">
+                  <span className="tb-label">로그아웃</span>
+                  <span className="tb-icon" aria-hidden="true">
+                    ⏻
+                  </span>
                 </button>
               </div>
             ) : (
-              <button className="btn" onClick={handleGoogleLogin} disabled={authBusy}>
+              <button className="btn login-btn" onClick={handleGoogleLogin} disabled={authBusy}>
                 <GoogleIcon />
-                {authBusy ? "로그인 중…" : "Google로 로그인"}
+                <span className="tb-label">{authBusy ? "로그인 중…" : "Google로 "}</span>
+                <span className="login-short">{authBusy ? "…" : "로그인"}</span>
               </button>
             )}
           </div>
