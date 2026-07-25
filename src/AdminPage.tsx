@@ -271,8 +271,8 @@ export function AdminPage() {
         </section>
 
         <p className="admin-note">
-          ※ 현재 회원 DB는 서버리스 임시 저장소(/tmp)라 서버 인스턴스가 재활용되면 초기화됩니다. 영구
-          보관이 필요하면 외부 DB(Supabase/Postgres) 연동이 필요해요.
+          ※ 회원·로그인 이벤트·입력 아이템은 외부 DB(Neon Postgres)에 <b>영구 보존</b>됩니다. 서버가
+          재배포·재활용돼도 데이터가 유지돼요.
         </p>
       </div>
     </div>
